@@ -1,0 +1,36 @@
+#+OPTIONS: ^:nil
+#+OPTIONS: \n:t
+
+* Description
+  It is customized from [[https://github.com/oryanmoshe/debezium-timestamp-converter][debezium timestamp converter]]. Original source code use SimpleDateTime's format which only support mills seconds. Use one trick to append the microseconds. Gave up to contribute it to original one because it's not one beautiful one.
+  Please refer to [[https://github.com/luyomo/OhMyTiUP/blob/main/doc/pg2kafka2tidb.org][Replication from postgres to TiDB]] to check how to use this plugin to convert the data before put it into kafka.
+* Hello world
+  #+BEGIN_SRC
+{
+  "name": "sourcepg",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "avrotest.cxmxisy1o2a2.us-east-1.rds.amazonaws.com",
+    "database.port": "5432",
+    "database.user": "kafkauser",
+    "database.password": "xxxxxxxxxx",
+    "database.dbname" : "test",
+    "database.server.name": "sourcepg",
+    "plugin.name": "pgoutput",
+    "key.converter": "io.confluent.connect.avro.AvroConverter",
+    "key.converter.schema.registry.url": "http://172.83.1.245:8081",
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter.schema.registry.url": "http://172.83.1.245:8081",
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.drop.tombstone": "true",
+    "transforms.unwrap.delete.handling.mode": "none",
+    "converters": "timestampConverter",
+    "timestampConverter.type": "yomo.kafka.connect.util.TimestampConverter",
+    "timestampConverter.format.time": "HH:mm:ss.SSSSSS",
+    "timestampConverter.format.date": "YYYY-MM-dd",
+    "timestampConverter.format.datetime": "YYYY-MM-dd HH:mm:ss.SSSSSS",
+    "timestampConverter.debug": "false"
+  }
+}
+  #+END_SRC
